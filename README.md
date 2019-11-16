@@ -1,2 +1,2 @@
 # my_research
-A miscellaneous folder Includes papers , projec, and any updates regarding my Master's thesis. 
+A miscellaneous folder includes papers , projects, and any updates regarding my Master's thesis. 
