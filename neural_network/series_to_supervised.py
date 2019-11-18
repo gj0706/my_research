@@ -1,3 +1,5 @@
+# This module is borrowed from Jason Browniee's tutorial "How to Convert a Time Series to a Supervised Learning Problem in Python" at https://machinelearningmastery.com/convert-time-series-supervised-learning-problem-python/
+
 from pandas import DataFrame
 from pandas import concat
  
