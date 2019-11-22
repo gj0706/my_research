@@ -24,19 +24,19 @@ for(let i=0; i<8; i++){
 console.log(feature_names);
 const cell_size = 20;
 
-d3.json('data/w1_flatten.json').then(function(w1Data){
-    d3.json('data/w2_flatten.json').then(function(w2Data){
+d3.json('data/w1.json').then(function(w1Data){
+    d3.json('data/w2.json').then(function(w2Data){
     console.log(w1Data);
     console.log(w2Data);
     // debugger
-    // let i1Gate = w1Data.i.map((d,i)=>{
-    //     return {
-    //         feature : d
-    //     }
-    // });
-    // console.log(i1Gate);
+    let i1Gate = w1Data.i.map((d,i)=>{
+        return {
+            feature : d
+        }
+    });
+    console.log(i1Gate);
     debugger
-    // draw_heatmap(i1Gate);
+    draw_heatmap(i1Gate);
     });
 });
 
