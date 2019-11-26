@@ -22,6 +22,8 @@ console.log(feature_names);
 let gates = ['o', 'c', 'f', 'i'];
 
 const cell_size = 20;
+// Initialize
+let tip = d3.tip().html(function(d) { return d; });
 
 d3.json('data/w1_melt.json').then(function(w1Data){
     d3.json('data/w1_flatten.json').then(function(w2Data){
@@ -52,6 +54,17 @@ d3.json('data/w1_melt.json').then(function(w1Data){
 });
 
 function draw_heatmap(data, selector, featureNum){
+    let tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html(function(d) {
+            return "feature: <span>" + d.feature + "</span>" + "<br>"+
+                 "Gate: <span>" + d.gate + "</span>"+ "<br>" +
+                "Weight: <span>" + d.value + "</span>" + "<br>" +
+                "Cell: <span>" + d.cell + "</span>" + "<br>"
+
+        });
+
     const hSvg = d3.select(selector)
         .append('svg')
         .attr('width', hWidth + hMargin.left + hMargin.right)
@@ -59,6 +72,7 @@ function draw_heatmap(data, selector, featureNum){
         .append('g')
         .attr('transform', 'translate(' + hMargin.left + ',' + hMargin.top + ')');
 
+    hSvg.call(tip);
     // Build x scales and axis:
     let x = d3.scaleBand()
         .domain(cell_names)
@@ -81,7 +95,7 @@ function draw_heatmap(data, selector, featureNum){
 //     let hColor = d3.scaleSequential(d3.interpolateRdBu)
     let hColor = d3.scaleLinear()
             .domain([-1,0, 1])
-            .range(['red', 'white', 'blue']);
+            .range(["#67001f","#e7eef2","#053061"]);
 
         // .interpolate('d3.interpolateRdBu()');
     debugger
@@ -106,6 +120,8 @@ debugger
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth() )
         .style("fill", function(d,i) { return hColor(d.value)} )
+        .on("mouseover", tip.show)
+        .on("mouseout", tip.hide);
 
     // hSvg.selectAll('rect')
     //     .data(data)
