@@ -1,8 +1,8 @@
 // constants
 
 const hMargin = {top: 30 , right: 30, bottom: 30, left: 30};
-const hHeight = 200 - hMargin.top - hMargin.bottom;
-const hWidth = 1000 - hMargin.left - hMargin.right;
+const hHeight = 100 - hMargin.top - hMargin.bottom;
+const hWidth = 1200 - hMargin.left - hMargin.right;
 
 
 
@@ -47,7 +47,7 @@ d3.json('data/w1_melt.json').then(function(w1Data){
     // let feature_0 = Object.values(w1_nested)[0].values[0];
 
     for (let i=0; i<8; i++){
-        draw_heatmap(w1Data, `#heatmap${i}`, i);
+        draw_heatmap(w1Data, `#heatmap${i+1}`, i);
     }
         // draw_heatmap(w1_nested);
     });
