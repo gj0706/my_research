@@ -22,42 +22,44 @@ let gates = ['o', 'c', 'f', 'i'];
 
 // Build color scale
 // let hColor = d3.scaleSequential(d3.interpolateRdBu)
-let hColor = d3.scaleLinear()
-    .domain([-1,0, 1])
-    .range(["#67001f","#e7eef2","#053061"]);
-
+// let hColor = d3.scaleLinear()
+//     .domain([-1,0, 1])
+//     .range(["#67001f","#e7eef2","#053061"]);
+let hColor = d3.scaleSequential(d3.interpolateRdBu)
+    .domain([-1,1]);
 
 // initialize
 let tip = d3.tip().html(function(d) { return d; });
-let legendRange = [-1, 0, 1];
-
-// add legend svg
-let hLegend = d3.select('#legend')
-    .append('svg')
-    .attr('class', 'legend')
-    .attr('width', 300)
-    .attr('height', 30);
-
-// draw legend rects
-hLegend.append('g').attr('class', 'legRect')
-    .attr("transform","translate(0,"+15+")")
-    .selectAll("rect")
-    .data(hColor.range())
-    .enter()
-    .append("rect")
-    .attr("width",100/hColor.range().length+"px")
-    .attr("height","10px")
-    .attr("fill",d=>d)
-    .attr("x",function(d,i){ return i*(100/hColor.range().length) });
-// legend text
-
-// hLegend.append("g").attr("class","LegText")
-//     .attr("transform","translate(0,45)")
+// let legendText = ['-1', '0', '1'];
+//
+// // add legend svg
+// let hLegend = d3.select('#legend')
+//     .append('svg')
+//     .attr('class', 'legend')
+//     .attr('width', 300)
+//     .attr('height', 40);
+//
+// // draw legend rects
+// hLegend.append('g').attr('class', 'legRect')
+//     .attr("transform","translate(0,"+15+")")
+//     .selectAll("rect")
+//     .data(hColor.range())
+//     .enter()
+//     .append("rect")
+//     .attr("width",100/hColor.range().length+"px")
+//     .attr("height","10px")
+//     .attr("fill",d=>d)
+//     .attr("x",function(d,i){ return i*(100/hColor.range().length) });
+// debugger
+// // legend text
+// hLegend.append("g")
+//     .attr("class","legText")
+//     .attr("transform","translate(0,35)")
 //     .append("text")
-//     .attr("x",lPatchWidth/2)
+//     .attr("x",(d,i)=> i * (100/hColor.range().length))
 //     .attr('font-weight', 'normal')
 //     .style("text-anchor", "middle")
-//     .text(colorLText[0])
+//     .text((d,i)=>legendText[i]);
 
 // load the data
 d3.json('data/w1_melt.json').then(function(w1Data){
