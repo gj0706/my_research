@@ -4,89 +4,37 @@ const hMargin = {top: 30 , right: 30, bottom: 30, left: 30};
 const hHeight = 100 - hMargin.top - hMargin.bottom;
 const hWidth = 1200 - hMargin.left - hMargin.right;
 
-
-
-let cell_names = [];
+    // create a list of cell names
+let cellNames = [];
 for(let i=0; i<50; i++){
-    cell_names.push(`C${(i).toString()}`);
+    cellNames.push(`C${(i).toString()}`);
 }
-// console.log(cell_names);
-
-let feature_names = [];
+// create a list of feature names
+let featureNames = [];
 for(let i=0; i<8; i++){
-    feature_names.push(`${(i+1).toString()}`);
+    featureNames.push(`${(i+1).toString()}`);
 }
-
-// console.log(feature_names);
+// create names of all four gates
 let gates = ['o', 'c', 'f', 'i'];
 
 // Build color scale
-// let hColor = d3.scaleSequential(d3.interpolateRdBu)
-// let hColor = d3.scaleLinear()
-//     .domain([-1,0, 1])
-//     .range(["#67001f","#e7eef2","#053061"]);
 let hColor = d3.scaleSequential(d3.interpolateRdBu)
     .domain([-1,1]);
 
 // initialize
 let tip = d3.tip().html(function(d) { return d; });
-// let legendText = ['-1', '0', '1'];
-//
-// // add legend svg
-// let hLegend = d3.select('#legend')
-//     .append('svg')
-//     .attr('class', 'legend')
-//     .attr('width', 300)
-//     .attr('height', 40);
-//
-// // draw legend rects
-// hLegend.append('g').attr('class', 'legRect')
-//     .attr("transform","translate(0,"+15+")")
-//     .selectAll("rect")
-//     .data(hColor.range())
-//     .enter()
-//     .append("rect")
-//     .attr("width",100/hColor.range().length+"px")
-//     .attr("height","10px")
-//     .attr("fill",d=>d)
-//     .attr("x",function(d,i){ return i*(100/hColor.range().length) });
-// debugger
-// // legend text
-// hLegend.append("g")
-//     .attr("class","legText")
-//     .attr("transform","translate(0,35)")
-//     .append("text")
-//     .attr("x",(d,i)=> i * (100/hColor.range().length))
-//     .attr('font-weight', 'normal')
-//     .style("text-anchor", "middle")
-//     .text((d,i)=>legendText[i]);
 
 // load the data
 d3.json('data/w1_melt.json').then(function(w1Data){
     d3.json('data/w1_flatten.json').then(function(w2Data){
     console.log(w1Data);
     console.log(w2Data);
-    // debugger
-    // let i1Gate = w1Data.i.map((d)=>{
-    //     return {
-    //         feature : d
-    //     }
-    // });
-    // console.log(i1Gate);
-    // let ig= w2Data.filter(d=>d.feature === 0);
-    // console.log(ig);
-    // w1_nested = d3.nest().key(d=>d.feature).map(w2Data);
-    // console.log(w1_nested);
-    // debugger
-    // let nodes = Object.keys(w1_nested);
-    // let matrix = {"nodes":["i", "f", "c", "o"], "links":[]};
-    //
-    // let feature_0 = Object.values(w1_nested)[0].values[0];
+
 
     for (let i=0; i<8; i++){
         draw_heatmap(w1Data, `#heatmap${i+1}`, i);
     }
-        // draw_heatmap(w1_nested);
+        draw_legend('#legend');
     });
 });
 
@@ -115,7 +63,7 @@ function draw_heatmap(data, selector, featureNum){
 
     // Build x scales and axis:
     let x = d3.scaleBand()
-        .domain(cell_names)
+        .domain(cellNames)
         .range([ 0, hWidth ]);
         // .padding(0.01);
 
@@ -146,4 +94,69 @@ function draw_heatmap(data, selector, featureNum){
         .on("mouseover", tip.show)
         .on("mouseout", tip.hide);
 
-};
+}
+
+function draw_legend(selector){
+    let legendWidth = 300;
+    let legendHeight = 10;
+    let legendText = ['-1', '0', '1'];
+    let legScale = d3.scaleLinear().range([0, legendWidth]).domain(hColor.domain());
+    let legAxis = d3.axisBottom()
+        .scale(legScale)
+        .tickSize(-legendHeight)
+        .ticks(7);
+
+    // add legend svg
+    let hLegend = d3.select(selector)
+        .append('svg')
+        .attr('class', 'legend')
+        .attr('width', 350)
+        .attr('height', 50);
+    let defs = hLegend.append('defs');
+    let linearGradient = defs.append('linearGradient').attr('id', 'linear-gradient');
+    linearGradient.selectAll('stop')
+        .data(hColor.ticks().map((t, i, n) => ({ offset: `${100*i/n.length}%`, color: hColor(t) })))
+        .enter()
+        .append('stop')
+        .attr('offset', d=>d.offset)
+        .attr('stop-color', d=>d.color);
+
+    // debugger
+    // image data hackery based on http://bl.ocks.org/mbostock/048d21cf747371b11884f75ad896e5a5
+    hLegend.append('g')
+        .attr('class', 'legRect')
+        // .attr("transform", `translate(0,${legendHeight})`)
+        // .attr("transform","translate(0,"+15+")")
+        .append('rect')
+        .attr('transform', `translate(${hMargin.left}, 0)`)
+        .attr('width', legendWidth)
+        .attr('height', legendHeight)
+        .style('fill','url(#linear-gradient)');
+
+
+    hLegend.append("g")
+        .attr("class", "axis--legend")
+        .attr('transform', `translate(${hMargin.left}, 10)`)
+        .call(legAxis);
+    // hLegend.append('g').attr('class', 'legRect')
+    //     .attr("transform","translate(0,"+15+")")
+    //     .selectAll("rect")
+    //     .data(hColor.range())
+    //     .enter()
+    //     .append("rect")
+    //     .attr("width",legendWidth/hColor.range().length+"px")
+    //     .attr("height",legendHeight)
+    //     .attr("fill",d=>d)
+    //     .attr("x",function(d,i){ return i*(legendWidth/hColor.range().length) });
+    debugger
+// legend text
+//     hLegend.append("g")
+//         .attr("class","legText")
+//         .attr("transform","translate(0,35)")
+//         .append("text")
+//         .attr("x",(d,i)=> i * (legendWidth/hColor.range().length))
+//         .attr('font-weight', 'normal')
+//         .style("text-anchor", "middle")
+//         .text((d,i)=>legendText[i]);
+//
+}
