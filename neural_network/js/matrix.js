@@ -10,21 +10,56 @@ let cell_names = [];
 for(let i=0; i<50; i++){
     cell_names.push(`C${(i).toString()}`);
 }
-console.log(cell_names);
+// console.log(cell_names);
 
 let feature_names = [];
 for(let i=0; i<8; i++){
     feature_names.push(`${(i+1).toString()}`);
 }
 
-
-console.log(feature_names);
+// console.log(feature_names);
 let gates = ['o', 'c', 'f', 'i'];
 
-const cell_size = 20;
-// Initialize
-let tip = d3.tip().html(function(d) { return d; });
+// Build color scale
+// let hColor = d3.scaleSequential(d3.interpolateRdBu)
+let hColor = d3.scaleLinear()
+    .domain([-1,0, 1])
+    .range(["#67001f","#e7eef2","#053061"]);
 
+
+// initialize
+let tip = d3.tip().html(function(d) { return d; });
+let legendRange = [-1, 0, 1];
+
+// add legend svg
+let hLegend = d3.select('#legend')
+    .append('svg')
+    .attr('class', 'legend')
+    .attr('width', 300)
+    .attr('height', 30);
+
+// draw legend rects
+hLegend.append('g').attr('class', 'legRect')
+    .attr("transform","translate(0,"+15+")")
+    .selectAll("rect")
+    .data(hColor.range())
+    .enter()
+    .append("rect")
+    .attr("width",100/hColor.range().length+"px")
+    .attr("height","10px")
+    .attr("fill",d=>d)
+    .attr("x",function(d,i){ return i*(100/hColor.range().length) });
+// legend text
+
+// hLegend.append("g").attr("class","LegText")
+//     .attr("transform","translate(0,45)")
+//     .append("text")
+//     .attr("x",lPatchWidth/2)
+//     .attr('font-weight', 'normal')
+//     .style("text-anchor", "middle")
+//     .text(colorLText[0])
+
+// load the data
 d3.json('data/w1_melt.json').then(function(w1Data){
     d3.json('data/w1_flatten.json').then(function(w2Data){
     console.log(w1Data);
@@ -53,7 +88,9 @@ d3.json('data/w1_melt.json').then(function(w1Data){
     });
 });
 
+// function to draw a heatmap
 function draw_heatmap(data, selector, featureNum){
+    // define tooltip
     let tip = d3.tip()
         .attr('class', 'd3-tip')
         .offset([-10, 0])
@@ -62,9 +99,9 @@ function draw_heatmap(data, selector, featureNum){
                  "Gate: <span>" + d.gate + "</span>"+ "<br>" +
                 "Weight: <span>" + d.value + "</span>" + "<br>" +
                 "Cell: <span>" + d.cell + "</span>" + "<br>"
-
         });
 
+    // create svg
     const hSvg = d3.select(selector)
         .append('svg')
         .attr('width', hWidth + hMargin.left + hMargin.right)
@@ -73,6 +110,7 @@ function draw_heatmap(data, selector, featureNum){
         .attr('transform', 'translate(' + hMargin.left + ',' + hMargin.top + ')');
 
     hSvg.call(tip);
+
     // Build x scales and axis:
     let x = d3.scaleBand()
         .domain(cell_names)
@@ -91,48 +129,19 @@ function draw_heatmap(data, selector, featureNum){
     hSvg.append("g")
         .call(d3.axisLeft(y));
 
-// Build color scale
-//     let hColor = d3.scaleSequential(d3.interpolateRdBu)
-    let hColor = d3.scaleLinear()
-            .domain([-1,0, 1])
-            .range(["#67001f","#e7eef2","#053061"]);
 
-        // .interpolate('d3.interpolateRdBu()');
-    debugger
-    // let value_array = [];
-    // for (let i = 0; i < data.length; i++) {
-    //     value_array.push(...data[i].feature);
-    // }
-debugger
+// debugger
+    // bind data and draw rectangles for heatmap
     hSvg.selectAll()
         .data(data.filter(d=>d.feature === featureNum))
         .enter()
         .append('rect')
         .attr("x",d=>d.cell *  x.bandwidth())
-        // .attr("x",d=>d.feature.forEach(v=>v))
-        // .attr("x",function(d){
-        //     for(let i=0; d.feature.length; i++){
-        //         x.bandwidth() * i;
-        //     }
-        //  })
-
         .attr("y", d=>y(d.gate))
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth() )
         .style("fill", function(d,i) { return hColor(d.value)} )
         .on("mouseover", tip.show)
         .on("mouseout", tip.hide);
-
-    // hSvg.selectAll('rect')
-    //     .data(data)
-    //     .enter()
-    //     .append('rect')
-    //     .attr('class','cell')
-    //     // .attr("x",(d,i)=>i * x.bandwidth())
-    //     .attr("x",d=>d.values)
-    //     .attr("y", d=>y.bandwidth()* parseInt(d.key))
-    //     .attr("width", x.bandwidth())
-    //     .attr("height", y.bandwidth())
-    //     .style("fill", (d,i)=>hColor(i));
 
 };
