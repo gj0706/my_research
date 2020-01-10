@@ -12,10 +12,8 @@ d3.json('data/all_epochs.json').then(function(data){
 });
 
 function draw_stream_chart(data, feature_num, gate){
-
-
-    const nestedData = d3.nest().key(k=>k.cell).entries(data.filter(v=>v.feature === feature_num && v.gate === gate));
-    // const allKeys = nested.map(d=>d.key);
+    let nestedData = d3.nest().key(k=>k.cell).entries(data.filter(v=>v.feature === feature_num && v.gate === gate));
+    // const allKeys = nestedData.map(d=>d.key);
     // const filter = nested.map(d=>d.values.filter(v=>v.feature === 0 && v.gate === 'i'));
     debugger
     // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
@@ -29,7 +27,6 @@ function draw_stream_chart(data, feature_num, gate){
         .append("g")
         .attr("transform",
             "translate(" + sMargin.left + "," + sMargin.top + ")");
-
 
     // Add X axis --> epochs
     let x = d3.scaleLinear()
@@ -48,9 +45,9 @@ function draw_stream_chart(data, feature_num, gate){
     sSvg.append("g")
         .call(d3.axisLeft(y).ticks(5));
 
-
     let color = d3.scaleSequential(d3.interpolateRdBu)
         .domain([-1,1]);
+
     // Draw the line
     sSvg
         .append("path")
