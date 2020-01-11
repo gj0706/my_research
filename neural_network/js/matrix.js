@@ -1,5 +1,4 @@
 // constants
-
 const hMargin = {top: 30 , right: 30, bottom: 30, left: 30};
 const hHeight = 100 - hMargin.top - hMargin.bottom;
 const hWidth = 1200 - hMargin.left - hMargin.right;
@@ -25,12 +24,10 @@ let hColor = d3.scaleSequential(d3.interpolateRdBu)
 let tip = d3.tip().html(function(d) { return d; });
 
 // load the data
-d3.json('data/w1_melt.json').then(function(w1Data){
+d3.json('data/all_epochs.json').then(function(w1Data){
     d3.json('data/w1_flatten.json').then(function(w2Data){
-    console.log(w1Data);
-    console.log(w2Data);
-
-
+    // console.log(w1Data);
+    // console.log(w2Data);
     for (let i=0; i<8; i++){
         draw_heatmap(w1Data, `#heatmap${i+1}`, i);
     }
@@ -48,7 +45,9 @@ function draw_heatmap(data, selector, featureNum){
             return "feature: <span>" + d.feature + "</span>" + "<br>"+
                  "Gate: <span>" + d.gate + "</span>"+ "<br>" +
                 "Weight: <span>" + d.value + "</span>" + "<br>" +
-                "Cell: <span>" + d.cell + "</span>" + "<br>"
+                "Cell: <span>" + d.cell + "</span>" + "<br>" +
+                "Epoch: <span>" + d.epoch + "</span>" + "<br>"
+
         });
 
     // create svg
@@ -60,7 +59,7 @@ function draw_heatmap(data, selector, featureNum){
         .attr('transform', 'translate(' + hMargin.left + ',' + hMargin.top + ')');
 
     hSvg.call(tip);
-
+debugger
     // Build x scales and axis:
     let x = d3.scaleBand()
         .domain(cellNames)
@@ -78,6 +77,11 @@ function draw_heatmap(data, selector, featureNum){
         .padding(0.01);
     hSvg.append("g")
         .call(d3.axisLeft(y));
+    //
+    // let nestedEpoch = d3.nest().key(k=>k.epoch).entries(data.filter(v=>v.feature === feature_num ));
+    //
+    // let chart = hSvg.selectAll("rect")
+    //     .data()
 
 
 // debugger
@@ -93,27 +97,28 @@ function draw_heatmap(data, selector, featureNum){
         .style("fill", function(d,i) { return hColor(d.value)} )
         .on("mouseover", tip.show)
         .on("mouseout", tip.hide);
-
 }
 
 function draw_legend(selector){
     let legendWidth = 300;
     let legendHeight = 10;
-    let legendText = ['-1', '0', '1'];
     let legScale = d3.scaleLinear().range([0, legendWidth]).domain(hColor.domain());
     let legAxis = d3.axisBottom()
         .scale(legScale)
         .tickSize(-legendHeight)
         .ticks(7);
 
-    // add legend svg
+
+    // creat legend svg
     let hLegend = d3.select(selector)
         .append('svg')
         .attr('class', 'legend')
         .attr('width', 350)
-        .attr('height', 50);
+        .attr('height', 25);
+
     let defs = hLegend.append('defs');
     let linearGradient = defs.append('linearGradient').attr('id', 'linear-gradient');
+
     linearGradient.selectAll('stop')
         .data(hColor.ticks().map((t, i, n) => ({ offset: `${100*i/n.length}%`, color: hColor(t) })))
         .enter()
@@ -121,42 +126,19 @@ function draw_legend(selector){
         .attr('offset', d=>d.offset)
         .attr('stop-color', d=>d.color);
 
-    // debugger
-    // image data hackery based on http://bl.ocks.org/mbostock/048d21cf747371b11884f75ad896e5a5
+    // draw legend rect
     hLegend.append('g')
         .attr('class', 'legRect')
-        // .attr("transform", `translate(0,${legendHeight})`)
-        // .attr("transform","translate(0,"+15+")")
         .append('rect')
         .attr('transform', `translate(${hMargin.left}, 0)`)
         .attr('width', legendWidth)
         .attr('height', legendHeight)
         .style('fill','url(#linear-gradient)');
 
-
+    // draw legend axis
     hLegend.append("g")
         .attr("class", "axis--legend")
         .attr('transform', `translate(${hMargin.left}, 10)`)
         .call(legAxis);
-    // hLegend.append('g').attr('class', 'legRect')
-    //     .attr("transform","translate(0,"+15+")")
-    //     .selectAll("rect")
-    //     .data(hColor.range())
-    //     .enter()
-    //     .append("rect")
-    //     .attr("width",legendWidth/hColor.range().length+"px")
-    //     .attr("height",legendHeight)
-    //     .attr("fill",d=>d)
-    //     .attr("x",function(d,i){ return i*(legendWidth/hColor.range().length) });
-    debugger
-// legend text
-//     hLegend.append("g")
-//         .attr("class","legText")
-//         .attr("transform","translate(0,35)")
-//         .append("text")
-//         .attr("x",(d,i)=> i * (legendWidth/hColor.range().length))
-//         .attr('font-weight', 'normal')
-//         .style("text-anchor", "middle")
-//         .text((d,i)=>legendText[i]);
-//
+
 }
