@@ -16,7 +16,19 @@ function draw_stream_chart(data, feature_num, gate){
     // const allKeys = nestedData.map(d=>d.key);
     // const filter = nested.map(d=>d.values.filter(v=>v.feature === 0 && v.gate === 'i'));
     debugger
-    // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
+    // Defile area
+    let area = d3.area()
+        .x(d=>d.epoch)
+        .y0(sHeight)
+        .y1(d=>d.value)
+        .curve(d3.curveCardinal);
+
+    // Define line
+    let line = d3.line()
+        .x(d=>d.epoch)
+        .y(d=>d.value);
+
+    // Add an svg element for each group. They will be one beside each other and will go on the next row when no more room available
     let sSvg = d3.select("#streamChart")
         .selectAll(".uniqueChart")
         .data(nestedData)
@@ -25,45 +37,52 @@ function draw_stream_chart(data, feature_num, gate){
         .attr("width", sWidth + sMargin.left + sMargin.right)
         .attr("height", sHeight + sMargin.top + sMargin.bottom)
         .append("g")
-        .attr("transform",
-            "translate(" + sMargin.left + "," + sMargin.top + ")");
+        .attr("transform", "translate(" + sMargin.left + "," + sMargin.top + ")");
+
 
     // Add X axis --> epochs
     let x = d3.scaleLinear()
         .domain(d3.extent(data, d=>d.epoch))
         .range([ 0, sWidth ]);
-    sSvg
-        .append("g")
-        .attr("transform", "translate(0," + sHeight + ")")
-        .call(d3.axisBottom(x).ticks(3));
 
     //Add Y axis --> weight values
     let y = d3.scaleLinear()
         .domain([-1, 1])
         .range([ sHeight, 0 ]);
 
+    // Draw x and y axis on g elements
+    sSvg.append("g")
+        .attr("transform", "translate(0," + sHeight + ")")
+        .call(d3.axisBottom(x).ticks(3));
     sSvg.append("g")
         .call(d3.axisLeft(y).ticks(5));
 
     let color = d3.scaleSequential(d3.interpolateRdBu)
         .domain([-1,1]);
 
-    // Draw the line
-    sSvg
-        .append("path")
-        .attr("class",".areaChart")
+    sSvg.append("path")
+        .attr("class","area")
         // .style("fill", function(d,i){ return color(d.values[i].value)})
-        .style("fill", function(d,i){ return (d.values[i].value >= 0 ? "blue":"red")})
-
+        // .style("fill", function(d,i){ return (d.values[i].value >= 0 ? "blue":"red")})
         // .style("stroke", "none")
         .attr("d", function(d){
             return d3.area()
-                .curve(d3.curveCardinal)
+                .curve(d3.curveBasis)
                 .x(d=>x(d.epoch))
-                .y0(y(0))
+                .y0(sHeight)
                 .y1(d=>y(d.value))
-                (d.values)
-        });
+                (d.values)});
+
+    sSvg.append("path")
+        .attr("class", "line")
+        // .attr("stroke", "red")
+        // .attr("fill", "none")
+        .attr("d", function(d){
+                return d3.line()
+                    .x(d=>x(d.epoch))
+                    .y(d=>y(d.value))
+                    (d.values)});
+
 
     // Add titles
     sSvg
