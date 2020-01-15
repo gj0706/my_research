@@ -3,4 +3,4 @@ A miscellaneous folder includes papers , projects, and any updates on my Master'
 
 lstm vis: https://gj0706.github.io/my_research/neural_network/index.html
 
-stram graph: https://gj0706.github.io/my_research/neural_network/stream.html
+stream graph: https://gj0706.github.io/my_research/neural_network/stream.html
