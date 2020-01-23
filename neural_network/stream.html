@@ -44,19 +44,31 @@
 </nav>
 <div class="container">
     <div class="row row-content">
-<p>This is a test page. There are 50 stream graphs. Each represents 1 LSTM cell in feature 1, layer 1. The x axis is epoch, the y axis is the value of the weights, each color represent one gate in "i", "f", "c" and "o".<br>
+<p> There are 8 features in total. Each line represents one feature. There are total 50 cells in the first LSTM layer.
+    Each stream graph represents one cell. And for each cell, the x axis represents 50 epochs, the y axis represents weight values,
+    and each stream represents 1 gate. There are 4 streams in each graph because we have i, f, c and o, 4 gates in total. <br>
 </p>
     </div>
 </div>
-
-<div id="stream1"></div>
-<div id="stream2"></div>
-<div id="stream3"></div>
-<div id="stream4"></div>
-<div id="stream5"></div>
-<div id="stream6"></div>
-<div id="stream7"></div>
-<div id="stream8"></div>
+<!--<div class="container">-->
+<!--    <div class="row">-->
+<!--        <div class="'col-md-10">-->
+<!--            <div id="stream1"></div>-->
+<!--        </div>-->
+<!--        <div class="col-md-2">-->
+<!--            <p>Feature 1</p>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<div id="sLegend"></div>
+<div id="stream1"><p>Pollution</p></div>
+<div id="stream2"><p>Dew</p></div>
+<div id="stream3"><p>Temperature</div>
+<div id="stream4"><p>Pressure</div>
+<div id="stream5"><p>Wind direction</div>
+<div id="stream6"><p>Wind speed</div>
+<div id="stream7"><p>Snow</div>
+<div id="stream8"><p>Rain</div>
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://d3js.org/d3-color.v1.min.js"></script>
