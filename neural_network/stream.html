@@ -23,7 +23,7 @@
 </head>
 
 <body>
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark ">
+<nav class="navbar  sticky-top navbar-expand-sm bg-dark navbar-dark ">
     <!-- Brand/logo -->
     <a class="navbar-brand" href="#">
         <img src="#" alt="logo" style="width:40px;">
@@ -42,14 +42,19 @@
         </li>
     </ul>
 </nav>
-<div class="container">
-    <div class="row row-content">
-<p> There are 8 features in total. Each line represents one feature. There are total 50 cells in the first LSTM layer.
-    Each stream graph represents one cell. And for each cell, the x axis represents 50 epochs, the y axis represents weight values,
-    and each stream represents 1 gate. There are 4 streams in each graph because we have i, f, c and o, 4 gates in total. <br>
-</p>
+
+
+<div class="checkBoxes">
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="negValues" value="Show negative">
+        <label class="form-check-label" for="negValues">Show negative</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" id="posValues" value="Show positive">
+        <label class="form-check-label" for="posValues">Show positive</label>
     </div>
 </div>
+
 <!--<div class="container">-->
 <!--    <div class="row">-->
 <!--        <div class="'col-md-10">-->
