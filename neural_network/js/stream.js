@@ -30,6 +30,48 @@ d3.json('data/model/layer1_10cells.json').then(function(data1){
 });
 
 function draw_output(data,selector){
+    const values = Array.from(d3.rollup(data, ([d]) => Math.abs(d.value), d => d.epoch));
+    debugger
+    // Define X scale --> epochs
+    let x = d3.scaleLinear()
+        .domain(d3.extent(data, d=>d.epoch))
+        .range([ 0, sWidth ]);
+
+    // Define y axis scale
+    let y = d3.scaleLinear()
+        .domain([-1, 1])
+        // .domain([0, d3.max(series, d=>d3.max(d, d=>(d[1])))]).nice()
+        .range([ sHeight ,0 ]);
+
+    // Define area
+    let area = d3.area()
+        .x(d=>x(d.data[0]))
+        .y0(d=>y(d[0]))
+        .y1(d=>y(d[1]))
+        .curve(d3.curveCardinal);
+
+    // Draw x and y axis
+    svg.append("g")
+        .attr("transform", "translate(0," + sHeight + ")")
+        .call(d3.axisBottom(x).ticks(3));
+    svg.append("g")
+        .call(d3.axisLeft(y).ticks(3));
+
+    // draw stream graph
+    svg.append("g").selectAll("path")
+        .data(series)
+        .join("path")
+        .attr("class","streams")
+        .attr("id", d=>`gate${d[0]}`)
+        // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
+        .attr("fill", ({key})=>color(key))
+        .attr("d", area)
+        // .on("mouseover", tip.show)
+        // .on("mouseout", tip.hide);
+        .append("title")
+        .text(({key})=>key);
+
+
 
 }
 function draw_single_chart(data, selector){
@@ -63,6 +105,7 @@ function draw_single_chart(data, selector){
     //     .domain(d3.range(0, gates.length))
     //     .range([ sHeight,sHeight/4,sHeight/2, sHeight/4*3]);
 
+    // Define y axis scale
     let y = d3.scaleLinear()
         .domain([-1, 1])
         // .domain([0, d3.max(series, d=>d3.max(d, d=>(d[1])))]).nice()
