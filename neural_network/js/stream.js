@@ -45,8 +45,8 @@ function draw_output(data,selector){
 
     // Define area
     let area = d3.area()
-        .x(d=>x(d.data[0]))
-        .y0(d=>y(d[0]))
+        .x(d=>x(d[0]))
+        .y0(y(0))
         .y1(d=>y(d[1]))
         .curve(d3.curveCardinal);
 
@@ -59,10 +59,10 @@ function draw_output(data,selector){
 
     // draw stream graph
     svg.append("g").selectAll("path")
-        .data(series)
+        .data(values)
         .join("path")
-        .attr("class","streams")
-        .attr("id", d=>`gate${d[0]}`)
+        .attr("class","area")
+        // .attr("id", d=>`gate${d[0]}`)
         // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
         .attr("fill", ({key})=>color(key))
         .attr("d", area)
