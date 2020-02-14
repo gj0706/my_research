@@ -1,7 +1,7 @@
 // const sMargin = {top: 20 , right: 5, bottom: 20, left: 20};
-const sMargin = {top: 0 , right: 0, bottom: 5, left: 0};
-const sHeight = 35 - sMargin.top - sMargin.bottom;
-const sWidth = 35 - sMargin.left - sMargin.right;
+const sMargin = {top: 0 , right: 0, bottom: 5, left: 15};
+const sHeight = 50 - sMargin.top - sMargin.bottom;
+const sWidth = 50 - sMargin.left - sMargin.right;
 
 // Load datasets of 3 layers
 d3.json('data/model/layer1_10cells.json').then(function(data1){
@@ -49,8 +49,7 @@ function draw_output(data,selector){
 
     // Define y axis scale
     let y = d3.scaleLinear()
-        .domain([-2, 4])
-        // .domain([0, d3.max(series, d=>d3.max(d, d=>(d[1])))]).nice()
+        .domain([-4, 4])
         .range([ sHeight ,0 ]);
 
     // Define line
@@ -60,7 +59,7 @@ function draw_output(data,selector){
     debugger
     // Define area
     let area = d3.area()
-        .x(d=>x(d.epoch))
+        .x(d=>x(d.epoch+1))
         .y0(y(0))
         .y1(d=>y(d.value))
         // .y0(function(d){
@@ -92,7 +91,7 @@ function draw_output(data,selector){
         .attr("class","line")
         // .attr("id", d=>`gate${d[0]}`)
         // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
-        .attr("fill", "none")
+        // .attr("fill", "red")
         .attr("d", line);
     // .on("mouseover", tip.show)
     // .on("mouseout", tip.hide);
@@ -106,20 +105,24 @@ function draw_single_chart(data, selector){
     // Data should be per cell per feature
     // let filtered = data.filter(d=>d.feature === nFeat && d.cell === nCell);
     let nested = d3.nest().key(k=>k.gate).entries(data);
-    let n = d3.group(data, d=>d.gate);
+    // let n = d3.group(data, d=>d.gate);
 
     const keys = nested.map(d=>d.key); // ["i", "f", "c", "o"] One stream each key
 
     // TODO: how to stack negative and positive values together ?
     const values = Array.from(d3.rollup(data, ([d]) => Math.abs(d.value), d => d.epoch, d => d.gate));
+    const negValues = Array.from(d3.rollup(data.filter(d=>d.value <= 0), ([d]) => Math.abs(d.value), d => d.epoch, d => d.gate));
+    const posValues = Array.from(d3.rollup(data.filter(d=>d.value > 0), ([d]) => Math.abs(d.value), d => d.epoch, d => d.gate));
 
-    // Define stack layout
-    let series = d3.stack()
-        .keys(keys)
-        .value(([, values], key) => values.get(key))
-        // .offset(d3.stackOffsetDiverging)
-        .offset(d3.stackOffsetSilhouette)
-        (values);
+
+    // // Define stack layout
+    // let series = d3.stack()
+    //     .keys(keys)
+    //     .value(([, values], key) => values.get(key))
+    //     // .offset(d3.stackOffsetDiverging)
+    //     .offset(d3.stackOffsetSilhouette)
+    //     (values);
+    // debugger
 
     // debugger
     // Define X scale --> epochs
@@ -134,7 +137,7 @@ function draw_single_chart(data, selector){
     //     .range([ sHeight,sHeight/4,sHeight/2, sHeight/4*3]);
 
     let y = d3.scaleLinear()
-        .domain([-1, 1])
+        .domain([-2, 2])
         // .domain([0, d3.max(series, d=>d3.max(d, d=>(d[1])))]).nice()
         .range([ sHeight ,0 ]);
 
@@ -165,9 +168,7 @@ function draw_single_chart(data, selector){
     // let tip = d3.tip()
     //     .attr('class', 'd3-tip')
     //     .offset([-10, 0])
-    //     .html(function(d) {
-    //         return
-    //         "Gate: <span>" + d.key + "</span>"+ "<br>"});
+    //     .html(({key})=>key);
 
     // Draw x and y axis
     svg.append("g")
@@ -176,25 +177,76 @@ function draw_single_chart(data, selector){
     svg.append("g")
         .call(d3.axisLeft(y).ticks(3));
 
-    // draw stream graph
-    svg.append("g").selectAll("path")
-        .data(series)
-        .join("path")
-        .attr("class","streams")
-        // .attr("id", d=>`gate${d[0]}`)
-        // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
-        .attr("fill", ({key})=>color(key))
-        .attr("d", area)
-        // .on("mouseover", tip.show)
-        // .on("mouseout", tip.hide);
-        .append("title")
-        .text(({key})=>key);
+    // if (d3.select("#negValues").property("checked")){
+    //     d3.select("#negValues").on("change",update_chart(negValues));
+    // }
+    // if (d3.select("#posValues").property("checked")){
+    //     d3.select("#posValues").on("change",update_chart(posValues));
+    // }
+
+
+    // // draw stream graph
+    // svg.append("g").selectAll("path")
+    //     .data(series)
+    //     .join("path")
+    //     .attr("class","streams")
+    //     // .attr("id", d=>`gate${d[0]}`)
+    //     // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
+    //     .attr("fill", ({key})=>color(key))
+    //     .attr("d", area)
+    //     // .on("mouseover", tip.show)
+    //     // .on("mouseout", tip.hide);
+    //     .append("title")
+    //     .text(({key})=>key);
+
+
+    let inputs = d3.selectAll(".radios input");
+    inputs.on("change", function(){
+        let inputValue = this.name;
+        if(inputValue === "negValues"){update_chart(negValues);}
+        else if (inputValue === "posValues"){update_chart(posValues);}
+        else update_chart(values);
+    });
+    update_chart(values);
+
+    function update_chart(values){
+        // d3.selectAll("path.streams").remove();
+
+        // Define stack layout
+        let series = d3.stack()
+            .keys(keys)
+            .value(([, values], key) => values.get(key))
+            // .offset(d3.stackOffsetDiverging)
+            .offset(d3.stackOffsetSilhouette)
+            (values);
+
+        // draw stream graph
+        svg.append("g").selectAll("path")
+            .data(series)
+            .join("path")
+            .attr("class","streams")
+            // .attr("id", d=>`gate${d[0]}`)
+            // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
+            .attr("fill", ({key})=>color(key))
+            .attr("d", area)
+            // .on("mouseover", tip.show)
+            // .on("mouseout", tip.hide);
+            .append("title")
+            .text(({key})=>key);
+        // .on("mouseover",tip.show())
+        // // .on("mousemove",mousemove)
+        // .on("mouseleave",tip.hide());
+
+    }
+
+
+
 
 }
 
-function show_negVal(){
-    d3.selectAll('path.streams')
-        .transition()
-        .duration(500)
-        .attr()
-}
+// function show_negVal(){
+//     d3.selectAll('path.streams')
+//         .transition()
+//         .duration(500)
+//         .attr()
+// }
