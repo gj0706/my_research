@@ -23,3 +23,16 @@
 /*.areaChart{*/
 /*    fill: grey;*/
 /*}*/
+
+/*.layer1{*/
+/*    float:left;*/
+/*}*/
+
+/*.layer2{*/
+/*    float:left;*/
+/*}*/
+
+path.line {
+    fill: none;
+    stroke: red;
+}
