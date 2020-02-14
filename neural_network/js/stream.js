@@ -1,5 +1,5 @@
 // const sMargin = {top: 20 , right: 5, bottom: 20, left: 20};
-const sMargin = {top: 0 , right: 0, bottom: 0, left: 0};
+const sMargin = {top: 0 , right: 0, bottom: 5, left: 0};
 const sHeight = 35 - sMargin.top - sMargin.bottom;
 const sWidth = 35 - sMargin.left - sMargin.right;
 
@@ -23,7 +23,8 @@ d3.json('data/model/layer1_10cells.json').then(function(data1){
             };
             // draw output
             for(let i = 0; i < 10; i++){
-                draw_output(data3,`#output${i+1}`);
+                let filteredOpt = data3.filter(d=>d["cell_opt"] === i);
+                draw_output(filteredOpt,"#opt");
             }
         });
     });
@@ -31,7 +32,16 @@ d3.json('data/model/layer1_10cells.json').then(function(data1){
 
 function draw_output(data,selector){
     const values = Array.from(d3.rollup(data, ([d]) => Math.abs(d.value), d => d.epoch));
-    debugger
+    // debugger
+
+    // Define svg container
+    let svg = d3.select(selector)
+        .append("svg")
+        .attr("width", sWidth + sMargin.left + sMargin.right)
+        .attr("height", sHeight + sMargin.top + sMargin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + sMargin.left + "," + sMargin.top + ")");
+
     // Define X scale --> epochs
     let x = d3.scaleLinear()
         .domain(d3.extent(data, d=>d.epoch))
@@ -39,15 +49,34 @@ function draw_output(data,selector){
 
     // Define y axis scale
     let y = d3.scaleLinear()
-        .domain([-1, 1])
+        .domain([-2, 4])
         // .domain([0, d3.max(series, d=>d3.max(d, d=>(d[1])))]).nice()
         .range([ sHeight ,0 ]);
 
+    // Define line
+    let line = d3.line()
+        .x(d=>x(d.epoch))
+        .y(d=>y(d.value));
+    debugger
     // Define area
     let area = d3.area()
-        .x(d=>x(d[0]))
+        .x(d=>x(d.epoch))
         .y0(y(0))
-        .y1(d=>y(d[1]))
+        .y1(d=>y(d.value))
+        // .y0(function(d){
+        //     if(d.value>0){
+        //         return y(0)
+        //     }else{
+        //         return y(d.value)
+        //     }
+        // })
+        // .y1(function(d){
+        //     if(d.value>0){
+        //         return y(d.value)
+        //     }else{
+        //         return y(0)
+        //     }
+        // })
         .curve(d3.curveCardinal);
 
     // Draw x and y axis
@@ -57,19 +86,18 @@ function draw_output(data,selector){
     svg.append("g")
         .call(d3.axisLeft(y).ticks(3));
 
-    // draw stream graph
-    svg.append("g").selectAll("path")
-        .data(values)
-        .join("path")
-        .attr("class","area")
+    // draw line graph
+    svg.append("path")
+        .datum(data)
+        .attr("class","line")
         // .attr("id", d=>`gate${d[0]}`)
         // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
-        .attr("fill", ({key})=>color(key))
-        .attr("d", area)
-        // .on("mouseover", tip.show)
-        // .on("mouseout", tip.hide);
-        .append("title")
-        .text(({key})=>key);
+        .attr("fill", "none")
+        .attr("d", line);
+    // .on("mouseover", tip.show)
+    // .on("mouseout", tip.hide);
+    // .append("title");
+    // .text(({key})=>key);
 
 
 
@@ -93,7 +121,7 @@ function draw_single_chart(data, selector){
         .offset(d3.stackOffsetSilhouette)
         (values);
 
-    debugger
+    // debugger
     // Define X scale --> epochs
     let x = d3.scaleLinear()
         .domain(d3.extent(data, d=>d.epoch))
@@ -105,7 +133,6 @@ function draw_single_chart(data, selector){
     //     .domain(d3.range(0, gates.length))
     //     .range([ sHeight,sHeight/4,sHeight/2, sHeight/4*3]);
 
-    // Define y axis scale
     let y = d3.scaleLinear()
         .domain([-1, 1])
         // .domain([0, d3.max(series, d=>d3.max(d, d=>(d[1])))]).nice()
@@ -154,7 +181,7 @@ function draw_single_chart(data, selector){
         .data(series)
         .join("path")
         .attr("class","streams")
-        .attr("id", d=>`gate${d[0]}`)
+        // .attr("id", d=>`gate${d[0]}`)
         // .attr("transform", (d,i)=>"translate(0," + y(i) + ")")
         .attr("fill", ({key})=>color(key))
         .attr("d", area)
