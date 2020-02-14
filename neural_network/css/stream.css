@@ -36,3 +36,8 @@ path.line {
     fill: none;
     stroke: red;
 }
+
+path.area{
+    fill:red;
+    stroke:red;
+}
