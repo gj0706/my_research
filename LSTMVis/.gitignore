@@ -1,0 +1,9 @@
+*.pyc
+.DS_Store
+_build_html
+docs/_build
+node_modules
+.idea
+data
+venv
+.ipynb_checkpoints
