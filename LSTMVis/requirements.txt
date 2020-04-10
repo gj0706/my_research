@@ -1,5 +1,5 @@
 spacy == 1.9.0
-Flask == 0.12.1
+Flask == 1.0
 PyYAML == 3.12
 Whoosh == 2.7.4
 connexion == 1.1.5
