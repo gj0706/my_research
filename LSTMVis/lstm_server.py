@@ -18,6 +18,29 @@ app = connexion.App(__name__, debug=True)
 
 
 def get_context(**request):
+    '''
+
+    :param request: 'request' in lstm_server.yaml
+    eg.: "request": {
+    "activation": 0.3,
+    "cells": [
+      2
+    ],
+    "dims": [
+      "states",
+      "words"
+    ],
+    "left": 3,
+    "pos": [
+      12
+    ],
+    "project": "ptb_word",
+    "right": 3,
+    "source": "states::states1",
+    "transform": "tanh"
+  }
+    :return:
+    '''
     project = request['project']
     if project not in data_handlers:
         return 'No such project', 404
@@ -161,10 +184,10 @@ def create_data_handlers(directory):
     for p_dir in project_dirs:
         with open(os.path.join(p_dir, CONFIG_FILE_NAME), 'r') as yf:
             config = yaml.load(yf) # config now is a dictionary
-            dh_id = os.path.split(p_dir)[1]
+            dh_id = os.path.split(p_dir)[1] # '05childbook'
             data_handlers[dh_id] = LSTMDataHandler(directory=p_dir, config=config)
             if data_handlers[dh_id].config['index']:
-                index_map[dh_id] = data_handlers[dh_id].config['index_dir']
+                index_map[dh_id] = data_handlers[dh_id].config['index_dir'] # {'05childbook': '/Users/jaywang/Documents/TTU_study/Fall2019/LSTMVis/data/05childbook/05childbook/indexdir'}
         i += 1
 
 

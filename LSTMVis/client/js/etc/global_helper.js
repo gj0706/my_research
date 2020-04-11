@@ -238,7 +238,7 @@ class Network {
             return new Promise((resolve, reject) => {
 
                 // Instantiates the XMLHttpRequest
-                const client = new XMLHttpRequest();
+                const client = new XMLHttpRequest(); // Create a new XMLHttpRequest instance to send request to HTTP
                 let uri = _url;
 
                 if (args && (method === 'POST' || method === 'GET' || method === 'PUT')) {
@@ -251,7 +251,7 @@ class Network {
                 }
 
                 // Debug: console.log('URI', uri, args);
-                client.open(method, uri);
+                client.open(method, uri); // method: GET, POST, etc. uri: server uri
                 client.send();
                 client.onload = function () {
                     if (this.status >= 200 && this.status < 300) {
