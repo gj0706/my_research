@@ -4,6 +4,6 @@ PyYAML == 3.12
 Whoosh == 2.7.4
 connexion == 1.1.5
 h5py == 2.7.0
-numpy == 1.12.1
+numpy == 1.21.0
 Werkzeug == 0.16.1
 blis == 0.0.5
